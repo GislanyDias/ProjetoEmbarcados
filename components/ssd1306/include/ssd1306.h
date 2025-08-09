@@ -1,27 +1,31 @@
-#ifndef SSD1306_H
-#define SSD1306_H
+#ifndef _SSD1306_H_
+#define _SSD1306_H_
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "driver/i2c.h"
+#include "esp_err.h"
 
-#define SSD1306_I2C_ADDRESS         0x3C
+
 #define SSD1306_WIDTH               128
 #define SSD1306_HEIGHT              64
-#define SSD1306_BUFFER_SIZE         1024
+#define SSD1306_BUFFER_SIZE         (SSD1306_WIDTH * SSD1306_HEIGHT / 8)
 
-typedef struct {
-    i2c_port_t i2c_num;
-    uint8_t buffer[SSD1306_BUFFER_SIZE];
-} ssd1306_t;
+#define SSD1306_I2C_ADDRESS         0x3C
 
-esp_err_t ssd1306_init(ssd1306_t dev, i2c_port_t i2c_num);
-void ssd1306_clear_buffer(ssd1306_tdev);
-esp_err_t ssd1306_display_buffer(ssd1306_t dev);
-void ssd1306_set_pixel(ssd1306_tdev, int x, int y, bool color);
-void ssd1306_draw_char(ssd1306_t dev, int x, int y, char c);
-void ssd1306_draw_string(ssd1306_tdev, int x, int y, const char* str);
-void ssd1306_draw_line(ssd1306_t dev, int x0, int y0, int x1, int y1);
-void ssd1306_draw_rect(ssd1306_tdev, int x, int y, int width, int height, bool filled);
 
-#endif
+#define I2C_MASTER_NUM              0
+#define I2C_MASTER_TIMEOUT_MS       1000
+
+
+esp_err_t ssd1306_init(void);
+void ssd1306_clear_buffer(void);
+esp_err_t ssd1306_display_buffer(void);
+esp_err_t ssd1306_update_display(void);
+void ssd1306_set_pixel(int x, int y, bool color);
+void ssd1306_draw_char(int x, int y, char c);
+void ssd1306_draw_string(int x, int y, const char* str);
+void ssd1306_draw_line(int x0, int y0, int x1, int y1);
+void ssd1306_draw_rect(int x, int y, int width, int height, bool filled);
+void ssd1306_draw_circle(int x0, int y0, int radius, bool filled);
+
+#endif // _SSD1306_H_

@@ -1,226 +1,214 @@
-#include "ssd.h"
-#include <string.h>
+#include "ssd1306.h"
+#include "font.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/i2c.h"
+#include "esp_log.h"
 
-// Etiqueta para logs
-static const char *OLED_LOG_TAG = "OLED_DISPLAY";
+static const char *TAG = "SSD1306";
 
-// Buffer de pixels na memória
-static uint8_t pixel_buffer[OLED_DISPLAY_WIDTH * OLED_PAGE_COUNT];
+// Display buffer
+static uint8_t display_buffer[SSD1306_BUFFER_SIZE];
 
-// --- Funções Estáticas de Comunicação ---
-
-/**
- * @brief Envia um comando para o display OLED via I2C.
- * @param command O comando a ser enviado.
- * @return ESP_OK em caso de sucesso, caso contrário um código de erro.
- */
-static esp_err_t oled_send_command(uint8_t command) {
-    i2c_cmd_handle_t command_link = i2c_cmd_link_create();
-    i2c_master_start(command_link);
-    i2c_master_write_byte(command_link, (OLED_DEVICE_ADDRESS << 1) | I2C_MASTER_WRITE, true);
-    i2c_master_write_byte(command_link, 0x00, true); // Co = 0, D/C = 0
-    i2c_master_write_byte(command_link, command, true);
-    i2c_master_stop(command_link);
-    esp_err_t result = i2c_master_cmd_begin(I2C_BUS_PORT, command_link, 1000 / portTICK_PERIOD_MS);
-    i2c_cmd_link_delete(command_link);
-    return result;
+// Function to send command to SSD1306
+esp_err_t ssd1306_write_command(uint8_t cmd) {
+    i2c_cmd_handle_t cmd_handle = i2c_cmd_link_create();
+    i2c_master_start(cmd_handle);
+    i2c_master_write_byte(cmd_handle, (SSD1306_I2C_ADDRESS << 1) | I2C_MASTER_WRITE, true);
+    i2c_master_write_byte(cmd_handle, 0x00, true);  // Control byte for command
+    i2c_master_write_byte(cmd_handle, cmd, true);
+    i2c_master_stop(cmd_handle);
+    esp_err_t ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd_handle, I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd_handle);
+    return ret;
 }
 
-/**
- * @brief Envia um bloco de dados para o display OLED via I2C.
- * @param data O array de dados a ser enviado.
- * @param len O tamanho do array de dados.
- * @return ESP_OK em caso de sucesso, caso contrário um código de erro.
- */
-static esp_err_t oled_send_data(uint8_t *data, size_t len) {
-    i2c_cmd_handle_t command_link = i2c_cmd_link_create();
-    i2c_master_start(command_link);
-    i2c_master_write_byte(command_link, (OLED_DEVICE_ADDRESS << 1) | I2C_MASTER_WRITE, true);
-    i2c_master_write_byte(command_link, 0x40, true); // Co = 0, D/C = 1
-    i2c_master_write(command_link, data, len, true);
-    i2c_master_stop(command_link);
-    esp_err_t result = i2c_master_cmd_begin(I2C_BUS_PORT, command_link, 1000 / portTICK_PERIOD_MS);
-    i2c_cmd_link_delete(command_link);
-    return result;
+// Function to send data to SSD1306
+esp_err_t ssd1306_write_data(uint8_t* data, size_t data_len) {
+    i2c_cmd_handle_t cmd_handle = i2c_cmd_link_create();
+    i2c_master_start(cmd_handle);
+    i2c_master_write_byte(cmd_handle, (SSD1306_I2C_ADDRESS << 1) | I2C_MASTER_WRITE, true);
+    i2c_master_write_byte(cmd_handle, 0x40, true);  // Control byte for data
+    i2c_master_write(cmd_handle, data, data_len, true);
+    i2c_master_stop(cmd_handle);
+    esp_err_t ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd_handle, I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd_handle);
+    return ret;
 }
 
-// --- Funções de Driver ---
-
-/**
- * @brief Inicializa o barramento I2C e o display OLED.
- */
-void oled_driver_initialize(void) {
-    // Configuração do I2C Master
-    i2c_config_t config = {
-        .mode = I2C_MODE_MASTER,
-        .sda_io_num = I2C_OLED_SDA_PIN,
-        .scl_io_num = I2C_OLED_SCL_PIN,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,
-        .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = I2C_BUS_FREQ_HZ,
-    };
+// Initialize SSD1306 display
+esp_err_t ssd1306_init(void) {
+    esp_err_t ret;
     
-    // Instala o driver I2C
-    ESP_ERROR_CHECK(i2c_param_config(I2C_BUS_PORT, &config));
-    ESP_ERROR_CHECK(i2c_driver_install(I2C_BUS_PORT, config.mode, 0, 0, 0));
-
-    // Sequência de inicialização do display SSD1306
-    oled_send_command(OLED_CMD_POWER_OFF);
-    oled_send_command(OLED_CMD_SET_CLOCK_DIVIDER);
-    oled_send_command(0x80);
-    oled_send_command(OLED_CMD_SET_MULTIPLEX_RATIO);
-    oled_send_command(OLED_DISPLAY_HEIGHT - 1);
-    oled_send_command(OLED_CMD_SET_DISPLAY_OFFSET);
-    oled_send_command(0x00);
-    oled_send_command(OLED_CMD_SET_START_LINE);
-    oled_send_command(OLED_CMD_CHARGE_PUMP_SET);
-    oled_send_command(0x14);
-    oled_send_command(OLED_CMD_PAGE_ADDRESSING);
-    oled_send_command(0x00);
-    oled_send_command(OLED_CMD_SEGMENT_REMAP);
-    oled_send_command(OLED_CMD_SCAN_DIRECTION_DEC);
-    oled_send_command(OLED_CMD_SET_COM_PINS);
-    oled_send_command(0x12);
-    oled_send_command(OLED_CMD_SET_BRIGHTNESS);
-    oled_send_command(0xCF);
-    oled_send_command(OLED_CMD_SET_PRECHARGE_PERIOD);
-    oled_send_command(0xF1);
-    oled_send_command(OLED_CMD_VCOMH_DESELECT);
-    oled_send_command(0x40);
-    oled_send_command(OLED_CMD_NORMAL_MODE);
+    // Initialization sequence
+    ret = ssd1306_write_command(0xAE);  // Display off
+    ret |= ssd1306_write_command(0xD5);  // Set display clock div
+    ret |= ssd1306_write_command(0x80);  // Suggested ratio
+    ret |= ssd1306_write_command(0xA8);  // Set multiplex
+    ret |= ssd1306_write_command(0x3F);  // 1/64 duty
+    ret |= ssd1306_write_command(0xD3);  // Set display offset
+    ret |= ssd1306_write_command(0x00);  // No offset
+    ret |= ssd1306_write_command(0x40);  // Set start line
+    ret |= ssd1306_write_command(0x8D);  // Charge pump
+    ret |= ssd1306_write_command(0x14);  // Enable charge pump
+    ret |= ssd1306_write_command(0x20);  // Memory mode
+    ret |= ssd1306_write_command(0x00);  // Horizontal addressing
+    ret |= ssd1306_write_command(0xA1);  // Segment remap
+    ret |= ssd1306_write_command(0xC8);  // COM output scan direction
+    ret |= ssd1306_write_command(0xDA);  // Set COM pins
+    ret |= ssd1306_write_command(0x12);  // Alternative COM pin config
+    ret |= ssd1306_write_command(0x81);  // Set contrast
+    ret |= ssd1306_write_command(0xCF);  // 
+    ret |= ssd1306_write_command(0xD9);  // Set precharge
+    ret |= ssd1306_write_command(0xF1);  // 
+    ret |= ssd1306_write_command(0xDB);  // Set vcom detect
+    ret |= ssd1306_write_command(0x40);  // 
+    ret |= ssd1306_write_command(0xA4);  // Display resume
+    ret |= ssd1306_write_command(0xA6);  // Normal display
+    ret |= ssd1306_write_command(0x2E);  // Deactivate scroll
+    ret |= ssd1306_write_command(0xAF);  // Display on
     
-    // Limpa o buffer de pixels e atualiza o display
-    oled_clear_buffer();
-    oled_refresh_display();
+    if (ret == ESP_OK) {
+        ssd1306_clear_buffer();
+        ssd1306_display_buffer();
+        ESP_LOGI(TAG, "Display initialized successfully");
+    } else {
+        ESP_LOGE(TAG, "Display initialization failed");
+    }
     
-    oled_send_command(OLED_CMD_POWER_ON);
-    ESP_LOGI(OLED_LOG_TAG, "Display OLED inicializado com sucesso.");
+    return ret;
 }
 
-/**
- * @brief Limpa o buffer de pixels na memória.
- */
-void oled_clear_buffer(void) {
-    memset(pixel_buffer, 0, sizeof(pixel_buffer));
+// Clear display buffer
+void ssd1306_clear_buffer(void) {
+    memset(display_buffer, 0, SSD1306_BUFFER_SIZE);
 }
 
-/**
- * @brief Envia o conteúdo do buffer para o display.
- */
-void oled_refresh_display(void) {
-    // Define o modo de endereçamento de página e envia o buffer completo
-    oled_send_command(OLED_CMD_COLUMN_ADDRESS_SET);
-    oled_send_command(0);
-    oled_send_command(OLED_DISPLAY_WIDTH - 1);
-    oled_send_command(OLED_CMD_PAGE_ADDRESS_SET);
-    oled_send_command(0);
-    oled_send_command(OLED_PAGE_COUNT - 1);
-    
-    oled_send_data(pixel_buffer, sizeof(pixel_buffer));
+// Send buffer to display
+esp_err_t ssd1306_display_buffer(void) {
+    return ssd1306_write_data(display_buffer, SSD1306_BUFFER_SIZE);
 }
 
-// --- Funções de Desenho ---
+// Alias for compatibility
+esp_err_t ssd1306_update_display(void) {
+    return ssd1306_display_buffer();
+}
 
-/**
- * @brief Define o estado de um pixel (ligado ou desligado) no buffer.
- * @param x_coord Coordenada X do pixel.
- * @param y_coord Coordenada Y do pixel.
- * @param state Estado do pixel (true para ligado, false para desligado).
- */
-void oled_set_pixel_state(int x_coord, int y_coord, bool state) {
-    if (x_coord >= 0 && x_coord < OLED_DISPLAY_WIDTH && y_coord >= 0 && y_coord < OLED_DISPLAY_HEIGHT) {
-        int index = x_coord + (y_coord / 8) * OLED_DISPLAY_WIDTH;
-        if (state) {
-            pixel_buffer[index] |= (1 << (y_coord % 8));
+// Set pixel in buffer
+void ssd1306_set_pixel(int x, int y, bool color) {
+    if (x >= 0 && x < SSD1306_WIDTH && y >= 0 && y < SSD1306_HEIGHT) {
+        int page = y / 8;
+        int bit = y % 8;
+        int index = x + page * SSD1306_WIDTH;
+        
+        if (color) {
+            display_buffer[index] |= (1 << bit);
         } else {
-            pixel_buffer[index] &= ~(1 << (y_coord % 8));
+            display_buffer[index] &= ~(1 << bit);
         }
     }
 }
 
-/**
- * @brief Desenha um caractere no buffer.
- * @param x_pos Coordenada X inicial.
- * @param y_pos Coordenada Y inicial.
- * @param character O caractere a ser desenhado.
- */
-void oled_draw_character(int x_pos, int y_pos, char character) {
-    if (character < 32 || character > 126) character = 32; // Espaço para caracteres inválidos
-    const uint8_t *char_map = font8x8[character - 32];
+// Draw character from font
+void ssd1306_draw_char(int x, int y, char c) {
+    if (c >= 32 && c <= 126) {
+        int char_index = c - 32;
+        for (int row = 0; row < 8; row++) {
+            uint8_t row_data = font8x8_basic[char_index][row];
+            for (int col = 0; col < 8; col++) {
+                if (row_data & (1 << col)) {
+                    ssd1306_set_pixel(x + col, y + row, true);
+                }
+            }
+        }
+    }
+}
+
+// Draw string
+void ssd1306_draw_string(int x, int y, const char* str) {
+    int pos_x = x;
+    while (*str) {
+        ssd1306_draw_char(pos_x, y, *str);
+        pos_x += 8;
+        str++;
+        if (pos_x >= SSD1306_WIDTH) break;
+    }
+}
+
+// Draw line using Bresenham's algorithm
+void ssd1306_draw_line(int x0, int y0, int x1, int y1) {
+    int dx = abs(x1 - x0);
+    int dy = abs(y1 - y0);
+    int x = x0;
+    int y = y0;
+    int n = 1 + dx + dy;
+    int x_inc = (x1 > x0) ? 1 : -1;
+    int y_inc = (y1 > y0) ? 1 : -1;
+    int error = dx - dy;
     
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            bool pixel_on = (char_map[i] >> j) & 1;
-            oled_set_pixel_state(x_pos + j, y_pos + i, pixel_on);
-        }
-    }
-}
-
-/**
- * @brief Desenha uma string no buffer.
- * @param x_pos Coordenada X inicial.
- * @param y_pos Coordenada Y inicial.
- * @param text A string a ser desenhada.
- */
-void oled_draw_string(int x_pos, int y_pos, const char* text) {
-    int current_x = x_pos;
-    while (*text) {
-        oled_draw_character(current_x, y_pos, *text);
-        current_x += 8;
-        text++;
-    }
-}
-
-/**
- * @brief Desenha uma linha no buffer.
- * @param x1 Coordenada X de início.
- * @param y1 Coordenada Y de início.
- * @param x2 Coordenada X de fim.
- * @param y2 Coordenada Y de fim.
- */
-void oled_draw_line(int x1, int y1, int x2, int y2) {
-    int dx = abs(x2 - x1);
-    int dy = abs(y2 - y1);
-    int sx = (x1 < x2) ? 1 : -1;
-    int sy = (y1 < y2) ? 1 : -1;
-    int err = dx - dy;
+    dx *= 2;
+    dy *= 2;
     
-    while (true) {
-        oled_set_pixel_state(x1, y1, true);
+    for (; n > 0; --n) {
+        ssd1306_set_pixel(x, y, true);
         
-        if (x1 == x2 && y1 == y2) break;
-        
-        int e2 = 2 * err;
-        if (e2 > -dy) {
-            err -= dy;
-            x1 += sx;
-        }
-        if (e2 < dx) {
-            err += dx;
-            y1 += sy;
+        if (error > 0) {
+            x += x_inc;
+            error -= dy;
+        } else {
+            y += y_inc;
+            error += dx;
         }
     }
 }
 
-/**
- * @brief Desenha um retângulo no buffer.
- * @param x_pos Coordenada X de início.
- * @param y_pos Coordenada Y de início.
- * @param width Largura do retângulo.
- * @param height Altura do retângulo.
- * @param fill Preencher o retângulo (true) ou apenas o contorno (false).
- */
-void oled_draw_rectangle(int x_pos, int y_pos, int width, int height, bool fill) {
-    if (fill) {
-        for (int y = y_pos; y < y_pos + height; y++) {
-            for (int x = x_pos; x < x_pos + width; x++) {
-                oled_set_pixel_state(x, y, true);
+// Draw rectangle (filled or outline)
+void ssd1306_draw_rect(int x, int y, int width, int height, bool filled) {
+    if (filled) {
+        for (int i = x; i < x + width; i++) {
+            for (int j = y; j < y + height; j++) {
+                ssd1306_set_pixel(i, j, true);
             }
         }
     } else {
-        oled_draw_line(x_pos, y_pos, x_pos + width - 1, y_pos);
-        oled_draw_line(x_pos + width - 1, y_pos, x_pos + width - 1, y_pos + height - 1);
-        oled_draw_line(x_pos + width - 1, y_pos + height - 1, x_pos, y_pos + height - 1);
-        oled_draw_line(x_pos, y_pos + height - 1, x_pos, y_pos);
+        ssd1306_draw_line(x, y, x + width - 1, y);
+        ssd1306_draw_line(x, y + height - 1, x + width - 1, y + height - 1);
+        ssd1306_draw_line(x, y, x, y + height - 1);
+        ssd1306_draw_line(x + width - 1, y, x + width - 1, y + height - 1);
+    }
+}
+
+// Draw circle using midpoint circle algorithm
+void ssd1306_draw_circle(int x0, int y0, int radius, bool filled) {
+    int x = radius;
+    int y = 0;
+    int err = 0;
+
+    while (x >= y) {
+        if (filled) {
+            ssd1306_draw_line(x0 - x, y0 + y, x0 + x, y0 + y);
+            ssd1306_draw_line(x0 - x, y0 - y, x0 + x, y0 - y);
+            ssd1306_draw_line(x0 - y, y0 + x, x0 + y, y0 + x);
+            ssd1306_draw_line(x0 - y, y0 - x, x0 + y, y0 - x);
+        } else {
+            ssd1306_set_pixel(x0 + x, y0 + y, true);
+            ssd1306_set_pixel(x0 + y, y0 + x, true);
+            ssd1306_set_pixel(x0 - y, y0 + x, true);
+            ssd1306_set_pixel(x0 - x, y0 + y, true);
+            ssd1306_set_pixel(x0 - x, y0 - y, true);
+            ssd1306_set_pixel(x0 - y, y0 - x, true);
+            ssd1306_set_pixel(x0 + y, y0 - x, true);
+            ssd1306_set_pixel(x0 + x, y0 - y, true);
+        }
+
+        if (err <= 0) {
+            y += 1;
+            err += 2*y + 1;
+        }
+        
+        if (err > 0) {
+            x -= 1;
+            err -= 2*x + 1;
+        }
     }
 }
