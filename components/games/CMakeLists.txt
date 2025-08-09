@@ -1,5 +1,5 @@
 idf_component_register(SRCS 
-                    "games.c"
+                    "menu.c"
                     "dodge.c"
                     "tilt_maze.c"
                     "snake.c"
