@@ -1,16 +1,21 @@
-#ifndef SNAKE_TILT_H
-#define SNAKE_TILT_H
+#ifndef SNAKE_H
+#define SNAKE_H
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "driver/gpio.h"
-#include "esp_log.h"
+#include "button.h"
+#include "mpu6050.h"
+#include "ssd1306.h"
+#include "buzzer.h"
 
 #define MAX_SNAKE_SEGMENTS 50
 #define INITIAL_SNAKE_SPEED 200
 #define MIN_SNAKE_SPEED 80
 #define SPEED_DECREMENT 10
 #define MAX_LIVES 3
+
+extern float accel_offset_x;
+extern float accel_offset_y;
 
 typedef struct {
     int x;

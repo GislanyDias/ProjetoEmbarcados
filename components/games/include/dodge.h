@@ -3,8 +3,11 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "driver/gpio.h"
-#include "esp_log.h"
+#include "button.h"
+#include "mpu6050.h"
+#include "ssd1306.h"
+#include "buzzer.h"
+#include <math.h>
 
 #define MAX_BLOCKS 3
 #define PLAYER_WIDTH 8
@@ -21,6 +24,9 @@ typedef struct {
     float speed;
     bool active;
 } Block;
+
+extern float accel_offset_x;
+extern float accel_offset_y;
 
 void start_dodge_blocks_game(void);
 void show_calibration_screen(void);

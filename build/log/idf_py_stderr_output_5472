@@ -1,0 +1,13 @@
+Command: ninja all
+CMake Error at C:/Espressif/frameworks/esp-idf-v5.5/tools/cmake/build.cmake:328 (message):
+  Failed to resolve component 'ledc' required by component 'buzzer': unknown
+  name.
+Call Stack (most recent call first):
+  C:/Espressif/frameworks/esp-idf-v5.5/tools/cmake/build.cmake:371 (__build_resolve_and_add_req)
+  C:/Espressif/frameworks/esp-idf-v5.5/tools/cmake/build.cmake:372 (__build_expand_requirements)
+  C:/Espressif/frameworks/esp-idf-v5.5/tools/cmake/build.cmake:685 (__build_expand_requirements)
+  C:/Espressif/frameworks/esp-idf-v5.5/tools/cmake/project.cmake:740 (idf_build_process)
+  CMakeLists.txt:8 (project)
+
+
+ninja: error: rebuilding 'build.ninja': subcommand failed

@@ -1,0 +1,46 @@
+Command: cmake -G Ninja -DPYTHON_DEPS_CHECKED=1 -DPYTHON=C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe -DESP_PLATFORM=1 -DIDF_TARGET=esp32 -DCCACHE_ENABLE=1 C:\esp_test
+-- Found Git: C:/Espressif/tools/idf-git/2.44.0/cmd/git.exe (found version "2.44.0.windows.1")
+-- Minimal build - ON
+-- ccache will be used for faster recompilation
+-- The C compiler identification is GNU 14.2.0
+-- The CXX compiler identification is GNU 14.2.0
+-- The ASM compiler identification is GNU
+-- Found assembler: C:/Espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/bin/xtensa-esp32-elf-gcc.exe
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/bin/xtensa-esp32-elf-gcc.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/bin/xtensa-esp32-elf-g++.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- git rev-parse returned 'fatal: not a git repository (or any of the parent directories): .git'
+-- Could not use 'git describe' to determine PROJECT_VER.
+-- Building ESP-IDF components for target esp32
+-- Project sdkconfig file C:/esp_test/sdkconfig
+-- Compiler supported targets: xtensa-esp-elf
+-- Found Python3: C:/Espressif/python_env/idf5.5_py3.11_env/Scripts/python.exe (found version "3.11.2") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Performing Test C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS
+-- Performing Test C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS - Success
+-- USING O3
+-- App "hello_world" version: 1
+-- Adding linker script C:/esp_test/build/esp-idf/esp_system/ld/memory.ld
+-- Adding linker script C:/esp_test/build/esp-idf/esp_system/ld/sections.ld.in
+-- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5/components/esp_rom/esp32/ld/esp32.rom.ld
+-- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5/components/esp_rom/esp32/ld/esp32.rom.api.ld
+-- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5/components/esp_rom/esp32/ld/esp32.rom.libgcc.ld
+-- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5/components/esp_rom/esp32/ld/esp32.rom.newlib-data.ld
+-- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5/components/esp_rom/esp32/ld/esp32.rom.syscalls.ld
+-- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5/components/esp_rom/esp32/ld/esp32.rom.libc-funcs.ld
+-- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5/components/esp_rom/esp32/ld/esp32.rom.newlib-reent-funcs.ld
+-- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5/components/soc/esp32/ld/esp32.peripherals.ld
+-- Components: app_update bootloader bootloader_support cxx efuse esp_app_format esp_bootloader_format esp_common esp_driver_gpio esp_hw_support esp_mm esp_partition esp_pm esp_rom esp_security esp_system esp_timer esptool_py freertos hal heap log main mbedtls newlib partition_table pthread soc spi_flash xtensa
+-- Component paths: C:/Espressif/frameworks/esp-idf-v5.5/components/app_update C:/Espressif/frameworks/esp-idf-v5.5/components/bootloader C:/Espressif/frameworks/esp-idf-v5.5/components/bootloader_support C:/Espressif/frameworks/esp-idf-v5.5/components/cxx C:/Espressif/frameworks/esp-idf-v5.5/components/efuse C:/Espressif/frameworks/esp-idf-v5.5/components/esp_app_format C:/Espressif/frameworks/esp-idf-v5.5/components/esp_bootloader_format C:/Espressif/frameworks/esp-idf-v5.5/components/esp_common C:/Espressif/frameworks/esp-idf-v5.5/components/esp_driver_gpio C:/Espressif/frameworks/esp-idf-v5.5/components/esp_hw_support C:/Espressif/frameworks/esp-idf-v5.5/components/esp_mm C:/Espressif/frameworks/esp-idf-v5.5/components/esp_partition C:/Espressif/frameworks/esp-idf-v5.5/components/esp_pm C:/Espressif/frameworks/esp-idf-v5.5/components/esp_rom C:/Espressif/frameworks/esp-idf-v5.5/components/esp_security C:/Espressif/frameworks/esp-idf-v5.5/components/esp_system C:/Espressif/frameworks/esp-idf-v5.5/components/esp_timer C:/Espressif/frameworks/esp-idf-v5.5/components/esptool_py C:/Espressif/frameworks/esp-idf-v5.5/components/freertos C:/Espressif/frameworks/esp-idf-v5.5/components/hal C:/Espressif/frameworks/esp-idf-v5.5/components/heap C:/Espressif/frameworks/esp-idf-v5.5/components/log C:/esp_test/main C:/Espressif/frameworks/esp-idf-v5.5/components/mbedtls C:/Espressif/frameworks/esp-idf-v5.5/components/newlib C:/Espressif/frameworks/esp-idf-v5.5/components/partition_table C:/Espressif/frameworks/esp-idf-v5.5/components/pthread C:/Espressif/frameworks/esp-idf-v5.5/components/soc C:/Espressif/frameworks/esp-idf-v5.5/components/spi_flash C:/Espressif/frameworks/esp-idf-v5.5/components/xtensa
+-- Configuring done (14.2s)
+-- Generating done (0.7s)
+-- Build files have been written to: C:/esp_test/build

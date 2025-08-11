@@ -1,7 +1,7 @@
 #include "snake.h"
-#include "display.h"
-#include "mpu6050.h"
-#include "buzzer.h"
+
+extern float accel_offset_x;
+extern float accel_offset_y;
 
 void init_snake(Snake *snake) {
     snake->length = 3;
@@ -92,7 +92,36 @@ int map(int x, int in_min, int in_max, int out_min, int out_max) {
 void start_snake_tilt_game(void) {
     play_level_up();
     char score_text[20];
-    show_calibration_screen();
+    
+    // Mostrar tela de calibração
+    ssd1306_clear_buffer();
+    ssd1306_draw_string(15, 10, "CALIBRANDO...");
+    ssd1306_draw_string(10, 25, "MANTENHA PARADO");
+    ssd1306_draw_string(25, 40, "3 SEGUNDOS");
+    ssd1306_update_display();
+    
+    // Calibração do MPU6050
+    mpu6050_data_t data;
+    float sum_x = 0, sum_y = 0;
+    int samples = 100;
+    
+    for (int i = 0; i < samples; i++) {
+        if (mpu6050_read_all(&data) == ESP_OK) {
+            sum_x += (float)data.accel_x / 16384.0f;
+            sum_y += (float)data.accel_y / 16384.0f;
+        }
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+    }
+    
+    accel_offset_x = sum_x / samples;
+    accel_offset_y = sum_y / samples;
+    
+    ssd1306_clear_buffer();
+    ssd1306_draw_string(20, 20, "CALIBRADO!");
+    ssd1306_draw_string(10, 35, "INCLINE PARA");
+    ssd1306_draw_string(15, 50, "CONTROLAR");
+    ssd1306_update_display();
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
     
     Snake snake;
     Food food;
@@ -104,6 +133,7 @@ void start_snake_tilt_game(void) {
     bool game_over = false;
     int game_speed = INITIAL_SNAKE_SPEED;
     uint32_t last_move_time = xTaskGetTickCount();
+    button_event_data_t btn_event;
 
     while (1) {
         if (game_over) {
@@ -116,7 +146,7 @@ void start_snake_tilt_game(void) {
             ssd1306_update_display();
             
             while (1) {
-                if (gpio_get_level(40) == 0 || gpio_get_level(38) == 0) {
+                if (button_get_event(&btn_event) == ESP_OK) {
                     vTaskDelay(500 / portTICK_PERIOD_MS);
                     return;
                 }

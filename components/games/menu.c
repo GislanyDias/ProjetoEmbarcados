@@ -51,7 +51,7 @@ void menu_update(MenuOption current_option) {
     ssd1306_draw_string(20, 40, current_option == MENU_OPTION_SNAKE_TILT ? "> SNAKE TILT" : "  SNAKE TILT");
     ssd1306_draw_string(20, 50, current_option == MENU_OPTION_PADDLE_PONG ? "> PADDLE PONG" : "  PADDLE PONG");
 
-    ssd1306_display_buffer();
+    ssd1306_update_display(); // CORREÇÃO: função correta
 
     // Verifica entrada do usuário
     uint32_t now = xTaskGetTickCount() * portTICK_PERIOD_MS;

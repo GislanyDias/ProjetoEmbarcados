@@ -1,0 +1,12 @@
+Command: ninja all
+[0/1] Re-running CMake...
+-- Minimal build - ON
+-- ccache will be used for faster recompilation
+-- git rev-parse returned 'fatal: not a git repository (or any of the parent directories): .git'
+-- Could not use 'git describe' to determine PROJECT_VER.
+-- Building ESP-IDF components for target esp32
+NOTICE: Processing 1 dependencies:
+NOTICE: [1/1] idf (5.5.0)
+-- Configuring incomplete, errors occurred!
+FAILED: build.ninja 
+C:\Espressif\tools\cmake\3.30.2\bin\cmake.exe --regenerate-during-build -SC:\esp_test -BC:\esp_test\build

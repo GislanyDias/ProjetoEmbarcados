@@ -1,0 +1,36 @@
+Command: ninja all
+[1/21] Performing build step for 'bootloader'
+[1/1] C:\WINDOWS\system32\cmd.exe /C "cd /D C:\esp_test\build\bootloader\esp-idf\esptool_py && C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:/Espressif/frameworks/esp-idf-v5.5/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 C:/esp_test/build/bootloader/bootloader.bin"
+Bootloader binary size 0x6680 bytes. 0x980 bytes (8%) free.
+[2/21] No install step for 'bootloader'
+[3/21] Completed 'bootloader'
+[4/21] Building C object esp-idf/ssd1306/CMakeFiles/__idf_ssd1306.dir/ssd1306.c.obj
+[5/21] Building C object esp-idf/games/CMakeFiles/__idf_games.dir/menu.c.obj
+[6/21] Building C object esp-idf/games/CMakeFiles/__idf_games.dir/tilt_maze.c.obj
+[7/21] Building C object esp-idf/games/CMakeFiles/__idf_games.dir/dodge.c.obj
+[8/21] Building C object esp-idf/games/CMakeFiles/__idf_games.dir/snake.c.obj
+[9/21] Building C object esp-idf/games/CMakeFiles/__idf_games.dir/pong.c.obj
+[10/21] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/hello_world_main.c.obj
+[11/21] Building C object esp-idf/i2clib/CMakeFiles/__idf_i2clib.dir/i2clib.c.obj
+C:/esp_test/components/i2clib/i2clib.c:19:17: warning: 'i2c_recovery_count' defined but not used [-Wunused-variable]
+   19 | static uint32_t i2c_recovery_count = 0;
+      |                 ^~~~~~~~~~~~~~~~~~
+C:/esp_test/components/i2clib/i2clib.c:18:20: warning: 'current_i2c_state' defined but not used [-Wunused-variable]
+   18 | static i2c_state_t current_i2c_state = I2C_STATE_UNKNOWN;
+      |                    ^~~~~~~~~~~~~~~~~
+[12/21] Building C object esp-idf/mpu6050/CMakeFiles/__idf_mpu6050.dir/mpu6050.c.obj
+[13/21] Linking C static library esp-idf\i2clib\libi2clib.a
+[14/21] Linking C static library esp-idf\mpu6050\libmpu6050.a
+[15/21] Linking C static library esp-idf\ssd1306\libssd1306.a
+[16/21] Linking C static library esp-idf\games\libgames.a
+[17/21] Linking C static library esp-idf\main\libmain.a
+[18/21] Generating esp-idf/esp_system/ld/sections.ld
+[19/21] Linking CXX executable hello_world.elf
+[20/21] Generating binary image from built executable
+esptool.py v4.10.dev2
+Creating esp32 image...
+Merged 2 ELF sections
+Successfully created esp32 image.
+Generated C:/esp_test/build/hello_world.bin
+[21/21] C:\WINDOWS\system32\cmd.exe /C "cd /D C:\esp_test\build\esp-idf\esptool_py && C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:/Espressif/frameworks/esp-idf-v5.5/components/partition_table/check_sizes.py --offset 0x8000 partition --type app C:/esp_test/build/partition_table/partition-table.bin C:/esp_test/build/hello_world.bin"
+hello_world.bin binary size 0x3a1e0 bytes. Smallest app partition is 0x100000 bytes. 0xc5e20 bytes (77%) free.

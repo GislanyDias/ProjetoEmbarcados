@@ -1,13 +1,13 @@
 #include "dodge.h"
-#include "display.h"
-#include "mpu6050.h"
-#include "buzzer.h"
 
 static int player_x = 128 / 2;
 static int score = 0;
 static bool game_over = false;
 static Block blocks[MAX_BLOCKS];
 static float player_velocity = 0.0f;
+
+float accel_offset_x = 0;
+float accel_offset_y = 0;
 
 void reset_game() {
     player_x = 128 / 2;
@@ -36,18 +36,18 @@ bool check_collision(Block *b) {
 }
 
 void control_player_with_gyro(void) {
-    float gyro_x, gyro_y, gyro_z;
-    uint8_t accel_data[6];
+    mpu6050_data_t data;
     
-    bool gyro_ok = (mpu6050_read_gyro(&gyro_x, &gyro_y, &gyro_z) == ESP_OK);
-    bool accel_ok = (mpu6050_read_bytes(0x3B, accel_data, 6) == ESP_OK);
+    // Usar mpu6050_read_all em vez de funções separadas
+    bool data_ok = (mpu6050_read_all(&data) == ESP_OK);
     
-    if (gyro_ok && accel_ok) {
-        int16_t accel_x_raw = (int16_t)((accel_data[0] << 8) | accel_data[1]);
-        int16_t accel_y_raw = (int16_t)((accel_data[2] << 8) | accel_data[3]);
+    if (data_ok) {
+        // Converter aceleração
+        float accel_x = ((float)data.accel_x / 16384.0f) - accel_offset_x;
+        float accel_y = ((float)data.accel_y / 16384.0f) - accel_offset_y;
         
-        float accel_x = ((float)accel_x_raw / 16384.0f) - accel_offset_x;
-        float accel_y = ((float)accel_y_raw / 16384.0f) - accel_offset_y;
+        // Converter giroscópio 
+        float gyro_x = (float)data.gyro_x / 131.0f;
         
         float tilt_angle = atan2(accel_x, accel_y) * 180.0f / M_PI;
         
@@ -102,7 +102,21 @@ void show_calibration_screen(void) {
     ssd1306_update_display();
     vTaskDelay(1000 / portTICK_PERIOD_MS);
     
-    mpu6050_calibrate_improved();
+    // Calibração do MPU6050
+    mpu6050_data_t data;
+    float sum_x = 0, sum_y = 0;
+    int samples = 100;
+    
+    for (int i = 0; i < samples; i++) {
+        if (mpu6050_read_all(&data) == ESP_OK) {
+            sum_x += (float)data.accel_x / 16384.0f;
+            sum_y += (float)data.accel_y / 16384.0f;
+        }
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+    }
+    
+    accel_offset_x = sum_x / samples;
+    accel_offset_y = sum_y / samples;
     
     ssd1306_clear_buffer();
     ssd1306_draw_string(20, 20, "CALIBRADO!");
@@ -117,6 +131,8 @@ void start_dodge_blocks_game(void) {
     show_calibration_screen();
     reset_game();
     
+    button_event_data_t btn_event;
+    
     while (1) {
         if (game_over) {
             ssd1306_clear_buffer();
@@ -129,7 +145,7 @@ void start_dodge_blocks_game(void) {
             ssd1306_update_display();
             
             while (1) {
-                if (gpio_get_level(40) == 0 || gpio_get_level(38) == 0) {
+                if (button_get_event(&btn_event) == ESP_OK) {
                     vTaskDelay(500 / portTICK_PERIOD_MS);
                     return;
                 }

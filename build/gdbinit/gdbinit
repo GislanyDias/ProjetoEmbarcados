@@ -1,0 +1,2 @@
+source C:/esp_test/build/gdbinit/symbols
+source C:/esp_test/build/gdbinit/connect

@@ -3,8 +3,11 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "driver/gpio.h"
-#include "esp_log.h"
+#include "button.h"
+#include "mpu6050.h"
+#include "ssd1306.h"
+#include <math.h>
+#include "buzzer.h"
 
 #define MAZE_WIDTH 16
 #define MAZE_HEIGHT 8
@@ -14,6 +17,9 @@
 #define MAZE_OFFSET_Y ((64 - MAZE_HEIGHT * CELL_SIZE) / 2)
 #define MAZE_END_X 14
 #define MAZE_END_Y 6
+
+extern float accel_offset_x;
+extern float accel_offset_y;
 
 typedef struct {
     int x;

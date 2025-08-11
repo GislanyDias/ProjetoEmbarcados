@@ -1,7 +1,4 @@
 #include "tilt_maze.h"
-#include "display.h"
-#include "mpu6050.h"
-#include "buzzer.h"
 
 static const uint8_t maze[MAZE_HEIGHT][MAZE_WIDTH] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -13,6 +10,9 @@ static const uint8_t maze[MAZE_HEIGHT][MAZE_WIDTH] = {
     {1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
+
+extern float accel_offset_x;
+extern float accel_offset_y;
 
 void draw_maze() {
     for (int y = 0; y < MAZE_HEIGHT; y++) {
@@ -44,11 +44,41 @@ bool is_valid_move(int x, int y) {
 
 void start_tilt_maze_game(void) {
     play_level_up();
-    show_calibration_screen();
+    
+    // Mostrar tela de calibração
+    ssd1306_clear_buffer();
+    ssd1306_draw_string(15, 10, "CALIBRANDO...");
+    ssd1306_draw_string(10, 25, "MANTENHA PARADO");
+    ssd1306_draw_string(25, 40, "3 SEGUNDOS");
+    ssd1306_update_display();
+    
+    // Calibração do MPU6050
+    mpu6050_data_t data;
+    float sum_x = 0, sum_y = 0;
+    int samples = 100;
+    
+    for (int i = 0; i < samples; i++) {
+        if (mpu6050_read_all(&data) == ESP_OK) {
+            sum_x += (float)data.accel_x / 16384.0f;
+            sum_y += (float)data.accel_y / 16384.0f;
+        }
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+    }
+    
+    accel_offset_x = sum_x / samples;
+    accel_offset_y = sum_y / samples;
+    
+    ssd1306_clear_buffer();
+    ssd1306_draw_string(20, 20, "CALIBRADO!");
+    ssd1306_draw_string(10, 35, "INCLINE PARA");
+    ssd1306_draw_string(15, 50, "CONTROLAR");
+    ssd1306_update_display();
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
     
     MazePlayer player = {1, 1};
     bool game_completed = false;
     uint32_t start_time = xTaskGetTickCount();
+    button_event_data_t btn_event;
     
     while (1) {
         if (game_completed) {
@@ -64,7 +94,7 @@ void start_tilt_maze_game(void) {
             ssd1306_update_display();
             
             while (1) {
-                if (gpio_get_level(40) == 0 || gpio_get_level(38) == 0) {
+                if (button_get_event(&btn_event) == ESP_OK) {
                     vTaskDelay(500 / portTICK_PERIOD_MS);
                     return;
                 }
@@ -74,8 +104,8 @@ void start_tilt_maze_game(void) {
         
         uint8_t accel_data[6];
         if (mpu6050_read_bytes(0x3B, accel_data, 6) == ESP_OK) {
-            int16_t accel_x_raw = (int16_t)((accel_data[0] << 8) | accel_data[1];
-            int16_t accel_y_raw = (int16_t)((accel_data[2] << 8) | accel_data[3];
+            int16_t accel_x_raw = (int16_t)((accel_data[0] << 8) | accel_data[1]);
+            int16_t accel_y_raw = (int16_t)((accel_data[2] << 8) | accel_data[3]);
             
             float accel_x = ((float)accel_x_raw / 16384.0f) - accel_offset_x;
             float accel_y = ((float)accel_y_raw / 16384.0f) - accel_offset_y;
