@@ -24,3 +24,13 @@ O objetivo principal é desenvolver um sistema funcional que integre controles p
 - Tilt Maze - Percorra um labirinto inclinando o dispositivo.
 - Snake Tilt - Versão do clássico jogo da cobra controlada por inclinação.
 - Paddle Pong - Rebata a bola com uma raquete controlada por movimento.
+
+
+# 📁 Bibliotecas desenvolvidas
+
+- **button** -
+- **buzzer** -
+- **games** -
+- **i2clib** -
+- **mpu6050** -
+- **ssd1306** -  
