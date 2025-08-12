@@ -16,3 +16,11 @@ O objetivo principal é desenvolver um sistema funcional que integre controles p
 
 - [Diagrama de Blocos](https://www.google.com)
 - [Diagrama Esquemático](https://www.google.com)
+
+
+# 🕹️ Jogos Implementados
+
+- Dodge the Blocks - Desvie de obstáculos movendo o dispositivo lateralmente.
+- Tilt Maze - Percorra um labirinto inclinando o dispositivo.
+- Snake Tilt - Versão do clássico jogo da cobra controlada por inclinação.
+- Paddle Pong - Rebata a bola com uma raquete controlada por movimento.
