@@ -91,3 +91,24 @@ buzzer_init();
 play_tone(1000, 500); // Toca 1 kHz por 500 ms
 play_game_over();     // Executa som de game over
 ```
+
+
+## `i2clib`:
+### 📌 Funcionalidades
+- ⚡ Inicialização do barramento I²C no modo mestre
+- 🔍 Varredura de dispositivos I²C para detectar endereços ativos
+- 🛠 Configuração com pull-up interno para SDA e SCL
+- 📊 Estados do barramento definidos por i2c_state_t (ativo, dormindo, travado, erro, etc.)
+- 🔄 Contador de recuperação (i2c_recovery_count) para monitoramento
+### 🔄 Fluxo de Operação
+- i2c_init() – Configura pinos SDA/SCL, velocidade e instala o driver I²C
+- i2c_scan() – Percorre endereços de 0x01 a 0x7E enviando comando de escrita
+- Para cada endereço com resposta positiva (ESP_OK), incrementa a contagem de dispositivos encontrados
+
+### 💻 Uso Básico
+```
+if (i2c_init() == ESP_OK) {
+    i2c_scan(); // Lista dispositivos conectados ao barramento
+}
+```
+
