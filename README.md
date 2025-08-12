@@ -36,7 +36,7 @@ O objetivo principal é desenvolver um sistema funcional que integre controles p
 - **ssd1306** - Controlador avançado para display OLED 128x64
 
 
-## 🛠️ Componentes utilizados
+# 🛠️ Componentes utilizados
 | Componente       | Interface | Função                                |
 |------------------|-----------|---------------------------------------|
 | ESP32            | -         | MCU principal                         |
@@ -45,3 +45,6 @@ O objetivo principal é desenvolver um sistema funcional que integre controles p
 | Módulo SD Card   | SPI       | Armazenamento de recordes             |
 | Buzzer           | GPIO/PWM  | Efeitos sonoros                       |
 | 2 Botões         | GPIO      | Navegação no menu                     |
+
+
+
