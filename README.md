@@ -15,7 +15,7 @@ O objetivo principal é desenvolver um sistema funcional que integre controles p
 # 🚀 Diagramas
 
 - [Diagrama de Blocos](https://www.google.com)
-- [Diagrama Esquemático](https://www.google.com)
+- [Diagrama Esquemático]([https://www.google.com](https://github.com/GislanyDias/ProjetoEmbarcados/blob/main/diagramas/Schematic.pdf))
 
 
 # 🕹️ Jogos Implementados
