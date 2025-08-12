@@ -71,3 +71,23 @@ if (button_get_event(&event) == ESP_OK) {
 
 
 ## `buzzer`:
+### 📌 Funcionalidades
+- 🔊 Controle de buzzer via PWM usando LEDC (8 bits, 5 kHz)
+- 🎵 Geração de tons com frequência e duração configuráveis
+- 🎮 Sons pré-definidos para eventos (game over, menu, pontuação, level up)
+- 🛡 Proteção para evitar frequências muito baixas (<150 Hz)
+- 📝 Log de erros ao definir frequências inválidas
+
+###🔄 Fluxo de Operação
+- buzzer_init() – Configura o timer e canal LEDC para o buzzer com duty inicial zero
+- play_tone(freq, dur) – Define a frequência, aciona o buzzer e aguarda o tempo especificado
+- Funções de evento (play_game_over(), play_menu_select(), etc.) chamam play_tone() com sequências específicas
+
+### 💻 Uso Básico
+```
+Copiar
+Editar
+buzzer_init();
+play_tone(1000, 500); // Toca 1 kHz por 500 ms
+play_game_over();     // Executa som de game over
+```
