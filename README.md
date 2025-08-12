@@ -47,4 +47,25 @@ O objetivo principal é desenvolver um sistema funcional que integre controles p
 | 2 Botões         | GPIO      | Navegação no menu                     |
 
 
+# 🛠️ Funcionamento de cada biblioteca
 
+- `button`:
+# 🎮 Driver de Botões
+
+### 📌 Funcionalidades
+- ✅ **Interrupções** para resposta instantânea  
+- 🔄 **Debounce em software** (filtro de ruído)  
+- 📨 **Fila FreeRTOS** (comunicação thread-safe)  
+- ⚙️ **Multi-botão** com pull-up/down configurável  
+
+### 🔄 Fluxo de Operação
+1. `init_buttons_isr()` - Configura GPIO e interrupções  
+2. **ISR** envia eventos para a fila ao pressionar  
+3. `button_get_event()` - Task principal lê eventos  
+
+### 💻 Uso Básico
+```c
+button_event_data_t event;
+if (button_get_event(&event) == ESP_OK) {
+    // Tratar evento do botão
+}
