@@ -62,8 +62,12 @@ O objetivo principal é desenvolver um sistema funcional que integre controles p
 3. `button_get_event()` - Task principal lê eventos  
 
 ### 💻 Uso Básico
-```c
+```
 button_event_data_t event;
 if (button_get_event(&event) == ESP_OK) {
     // Tratar evento do botão
 }
+```
+
+
+## `buzzer`:
