@@ -100,6 +100,7 @@ play_game_over();     // Executa som de game over
 - 🛠 Configuração com pull-up interno para SDA e SCL
 - 📊 Estados do barramento definidos por i2c_state_t (ativo, dormindo, travado, erro, etc.)
 - 🔄 Contador de recuperação (i2c_recovery_count) para monitoramento
+  
 ### 🔄 Fluxo de Operação
 - i2c_init() – Configura pinos SDA/SCL, velocidade e instala o driver I²C
 - i2c_scan() – Percorre endereços de 0x01 a 0x7E enviando comando de escrita
@@ -112,3 +113,27 @@ if (i2c_init() == ESP_OK) {
 }
 ```
 
+
+
+
+## `mpu6050`:
+### 📌 Funcionalidades
+- ⚡ Inicialização do barramento I²C para comunicação com o MPU6050
+- ✍ Escrita em registradores do sensor (mpu6050_write_byte)
+- 📥 Leitura de um ou múltiplos bytes de registradores (mpu6050_read_byte, mpu6050_read_bytes)
+- 🔄 Configuração inicial do MPU6050 (mpu6050_init)
+- 🔢 Conversão de dados brutos para valores em g, °/s e °C (mpu6050_convert_data)
+  
+### 🔄 Fluxo de Operação
+- i2c_master_init() – Configura e inicia o driver I²C no modo mestre
+- mpu6050_init() – Verifica ID do sensor, acorda do modo sleep e configura parâmetros
+- mpu6050_read_all() – Lê 14 bytes com dados de acelerômetro, giroscópio e temperatura
+
+### 💻 Uso Básico
+```
+i2c_master_init();
+if (mpu6050_init() == ESP_OK) {
+    float ax, ay, az;
+    mpu6050_read_acceleration(&ax, &ay, &az);
+}
+```
