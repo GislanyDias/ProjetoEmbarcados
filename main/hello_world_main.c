@@ -18,18 +18,15 @@
 
 static const char *TAG = "MAIN";
 
-// Configuração dos botões
-#define BUTTON_1_GPIO 40  // Botão verde (navegação)
-#define BUTTON_2_GPIO 38  // Botão vermelho (seleção)
+#define BUTTON_1_GPIO 40  
+#define BUTTON_2_GPIO 38  
 
 void app_main(void) {
     ESP_LOGI(TAG, "INICIANDO SISTEMA DE JOGOS");
 
-    // Inicializações básicas
     ESP_ERROR_CHECK(i2c_init());
     vTaskDelay(200 / portTICK_PERIOD_MS);
     
-    // Configurar botões
     gpio_config_t btn_config = {
         .pin_bit_mask = (1ULL << BUTTON_1_GPIO) | (1ULL << BUTTON_2_GPIO),
         .mode = GPIO_MODE_INPUT,
@@ -39,17 +36,14 @@ void app_main(void) {
     };
     ESP_ERROR_CHECK(init_buttons(&btn_config));
 
-    // Inicializa componentes
     buzzer_init();
     ssd1306_init();
     menu_init();
 
-    // Inicializa MPU6050 (giroscópio/acelerômetro)
     esp_err_t mpu_ret = mpu6050_init();
     if (mpu_ret != ESP_OK) {
         ESP_LOGE(TAG, "FALHA MPU6050! ERRO: %s", esp_err_to_name(mpu_ret));
         
-        // Mostra mensagem de erro no display
         ssd1306_clear_buffer();
         ssd1306_draw_string(10, 20, "ERRO MPU6050!");
         ssd1306_draw_string(5, 35, "VERIFIQUE AS");
@@ -61,10 +55,8 @@ void app_main(void) {
         }
     }
 
-    // Inicializa gerador de números aleatórios
     srand(time(NULL));
 
-    // Toca som de inicialização
     play_tone(800, 100);
     vTaskDelay(50 / portTICK_PERIOD_MS);
     play_tone(1200, 150);
@@ -73,19 +65,13 @@ void app_main(void) {
 
     ESP_LOGI(TAG, "SISTEMA INICIADO");
 
-    // Variável para armazenar a opção atual do menu
-    MenuOption current_option = MENU_OPTION_DODGE;
-
-    // Loop principal
     while (1) {
-        // Atualiza o menu
+        MenuOption current_option = menu_get_selected_option();
         menu_update(current_option);
 
-        // Verifica se uma opção foi selecionada
         if (menu_option_selected()) {
             current_option = menu_get_selected_option();
 
-            // Executa o jogo selecionado
             switch(current_option) {
                 case MENU_OPTION_DODGE:
                     ESP_LOGI(TAG, "INICIANDO DODGE");
@@ -107,7 +93,6 @@ void app_main(void) {
                     break;
             }
 
-            // Após sair do jogo, volta para o menu
             ssd1306_clear_buffer();
         }
 

@@ -38,7 +38,6 @@ bool check_collision(Block *b) {
 void control_player_with_gyro(void) {
     mpu6050_data_t data;
     
-    // Usar mpu6050_read_all em vez de funções separadas
     bool data_ok = (mpu6050_read_all(&data) == ESP_OK);
     
     if (data_ok) {
@@ -102,7 +101,6 @@ void show_calibration_screen(void) {
     ssd1306_update_display();
     vTaskDelay(1000 / portTICK_PERIOD_MS);
     
-    // Calibração do MPU6050
     mpu6050_data_t data;
     float sum_x = 0, sum_y = 0;
     int samples = 100;
@@ -139,13 +137,13 @@ void start_dodge_blocks_game(void) {
             ssd1306_draw_rect(2, 2, 124, 60, false);
             ssd1306_draw_string(20, 20, "GAME OVER");
             char score_text[20];
-            snprintf(score_text, sizeof(score_text), "ESCORE: %d", score);
+            snprintf(score_text, sizeof(score_text), "SCORE:%d", score);
             ssd1306_draw_string(20, 35, score_text);
             ssd1306_draw_string(5, 50, "PRESS ANY BUTTON");
             ssd1306_update_display();
             
             while (1) {
-                if (button_get_event(&btn_event) == ESP_OK) {
+                if (gpio_get_level(40) == 0 || gpio_get_level(38) == 0) {
                     vTaskDelay(500 / portTICK_PERIOD_MS);
                     return;
                 }

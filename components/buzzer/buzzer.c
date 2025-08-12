@@ -23,7 +23,6 @@ void buzzer_init() {
     
     ESP_ERROR_CHECK(ledc_channel_config(&channel_conf));
     
-    // Garante que comece desligado
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
@@ -33,7 +32,6 @@ void play_tone(int frequency, int duration_ms) {
         frequency = 150;
     }
     
-    // Configura a frequência
     esp_err_t err = ledc_set_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0, frequency);
     if (err != ESP_OK) {
         ESP_LOGE(BUZZER_TAG, "Falha ao definir frequência %dHz: %s", 
@@ -41,13 +39,11 @@ void play_tone(int frequency, int duration_ms) {
         return;
     }
 
-    // Duty cycle de 50% (128 em 255)
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 128);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
     
     vTaskDelay(pdMS_TO_TICKS(duration_ms));
     
-    // Desliga o buzzer
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }

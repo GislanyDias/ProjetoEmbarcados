@@ -1,9 +1,9 @@
 #include "pong.h"
-#include "ssd1306.h"  // CORREÇÃO: usar ssd1306.h em vez de display.h
+#include "ssd1306.h" 
 #include "mpu6050.h"
 #include "buzzer.h"
-#include "dodge.h"     // Para usar accel_offset_x
-#include <stdlib.h>    // Para rand()
+#include "dodge.h"     
+#include <stdlib.h>  
 
 void init_pong(Ball *ball, Paddle *paddle) {
     ball->x = 128 / 2;
@@ -25,7 +25,7 @@ void draw_paddle(Paddle *paddle) {
 
 void start_paddle_pong_game(void) {
     play_level_up();
-    show_calibration_screen();  // Esta função está em dodge.c
+    show_calibration_screen();  
     
     Ball ball;
     Paddle paddle;
@@ -41,7 +41,7 @@ void start_paddle_pong_game(void) {
             ssd1306_draw_rect(2, 2, 124, 60, false);
             ssd1306_draw_string(20, 20, "GAME OVER");
             char score_text[20];
-            snprintf(score_text, sizeof(score_text), "ESCORE: %d", score);
+            snprintf(score_text, sizeof(score_text), "SCORE:%d", score);
             ssd1306_draw_string(20, 35, score_text);
             ssd1306_draw_string(5, 50, "PRESS ANY BUTTON");
             ssd1306_update_display();
@@ -55,7 +55,6 @@ void start_paddle_pong_game(void) {
             }
         }
         
-        // Controle do paddle usando MPU6050
         uint8_t accel_data[6];
         if (mpu6050_read_bytes(0x3B, accel_data, 6) == ESP_OK) {
             int16_t accel_x_raw = (int16_t)((accel_data[0] << 8) | accel_data[1]);
@@ -108,12 +107,10 @@ void start_paddle_pong_game(void) {
             }
         }
         
-        // Desenhar tudo
         ssd1306_clear_buffer();
         draw_ball(&ball);
         draw_paddle(&paddle);
         
-        // Mostrar pontuação e vidas
         char score_text[20];
         snprintf(score_text, sizeof(score_text), "SCORE:%d", score);
         ssd1306_draw_string(5, 5, score_text);

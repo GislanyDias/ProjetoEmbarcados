@@ -5,16 +5,14 @@
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_log.h"
 #include "font.h"
 #include "i2clib.h"
 
-// Configurações do SSD1306
 #define SSD1306_WIDTH               128
 #define SSD1306_HEIGHT              64
-#define SSD1306_PAGES               8     // 64/8 = 8 páginas
-#define SSD1306_FONT_WIDTH          8     // Largura da fonte
-#define SSD1306_WIDTH_IN_CHARS      16    // Largura total / largura da letra == 128 / 8
+#define SSD1306_PAGES               8    
+#define SSD1306_FONT_WIDTH          8     
+#define SSD1306_WIDTH_IN_CHARS      16   
 
 #define SSD1306_CMD_DISPLAY_OFF     0xAE
 #define SSD1306_CMD_DISPLAY_ON      0xAF
@@ -36,34 +34,19 @@
 #define SSD1306_CMD_SET_COLUMN_ADDR 0x21
 #define SSD1306_CMD_SET_PAGE_ADDR   0x22
 
-
 esp_err_t ssd1306_write_command(uint8_t cmd);
-
 esp_err_t ssd1306_write_data(uint8_t* data, size_t len);
-
 void ssd1306_init(void);
-
 void ssd1306_clear_buffer(void);
-
 void ssd1306_update_display(void);
-
 void ssd1306_set_pixel(int x, int y, bool on);
-
 void ssd1306_draw_circle_points(int cx, int cy, int x, int y);
-
 void ssd1306_draw_circle(int cx, int cy, int radius, bool filled);
-
 void ssd1306_draw_char(int x, int y, char c);
-
 void ssd1306_draw_string(int x, int y, const char* str);
-
 void ssd1306_draw_line(int x0, int y0, int x1, int y1);
-
 void ssd1306_draw_rect(int x, int y, int w, int h, bool filled);
-
 void ssd1306_test_pattern(void);
-
-
 int ssd1306_get_string_width(const char *str);
 
 #endif

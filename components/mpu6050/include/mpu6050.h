@@ -6,17 +6,15 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c.h"
-#include "esp_log.h"
 #include "esp_err.h"
 #include "i2clib.h"
 
-// Definições do MPU6050
-#define MPU6050_PWR_MGMT_1          0x6B    // Registro de gerenciamento de energia
-#define MPU6050_SMPLRT_DIV          0x19    // Sample Rate Divider
-#define MPU6050_CONFIG              0x1A    // Configuração
-#define MPU6050_GYRO_CONFIG         0x1B    // Configuração do giroscópio
-#define MPU6050_ACCEL_CONFIG        0x1C    // Configuração do acelerômetro
-#define MPU6050_WHO_AM_I            0x75    // Registro de identificação
+#define MPU6050_PWR_MGMT_1          0x6B    
+#define MPU6050_SMPLRT_DIV          0x19   
+#define MPU6050_CONFIG              0x1A   
+#define MPU6050_GYRO_CONFIG         0x1B    
+#define MPU6050_ACCEL_CONFIG        0x1C   
+#define MPU6050_WHO_AM_I            0x75   
 
 #define MPU6050_ACCEL_XOUT_H        0x3B
 #define MPU6050_ACCEL_XOUT_L        0x3C
@@ -44,21 +42,13 @@ typedef struct {
 } mpu6050_data_t;
 
 esp_err_t i2c_master_init(void);
-
 esp_err_t mpu6050_write_byte(uint8_t reg_addr, uint8_t data);
-
 esp_err_t mpu6050_read_byte(uint8_t reg_addr, uint8_t *data);
-
 esp_err_t mpu6050_read_bytes(uint8_t reg_addr, uint8_t *data, size_t len);
-
 esp_err_t mpu6050_init(void);
-
 esp_err_t mpu6050_read_all(mpu6050_data_t *data);
-
 void mpu6050_convert_data(mpu6050_data_t *raw_data, float *accel_g, float *gyro_dps, float *temp_c);
-
 void mpu6050_task(void *pvParameters);
-
 esp_err_t mpu6050_read_acceleration(float* ax, float* ay, float* az);
 
 #endif
