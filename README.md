@@ -49,7 +49,7 @@ O objetivo principal é desenvolver um sistema funcional que integre controles p
 
 # 🛠️ Funcionamento de cada biblioteca
 
-##`button`:
+## `button`:
 ### 📌 Funcionalidades
 - ✅ **Interrupções** para resposta instantânea  
 - 🔄 **Debounce em software** (filtro de ruído)  
