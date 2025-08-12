@@ -35,3 +35,13 @@ O objetivo principal é desenvolver um sistema funcional que integre controles p
 - **mpu6050** - Biblioteca para aquisição de dados inerciais via I2C
 - **ssd1306** - Controlador avançado para display OLED 128x64
 
+
+## 🛠️ Componentes utilizados
+| Componente       | Interface | Função                                |
+|------------------|-----------|---------------------------------------|
+| ESP32            | -         | MCU principal                         |
+| MPU6050          | I2C       | Acelerômetro/giroscópio               |
+| SSD1306 (OLED)   | I2C       | Display 128x64 pixels                 |
+| Módulo SD Card   | SPI       | Armazenamento de recordes             |
+| Buzzer           | GPIO/PWM  | Efeitos sonoros                       |
+| 2 Botões         | GPIO      | Navegação no menu                     |
