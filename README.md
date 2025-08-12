@@ -33,4 +33,52 @@ O objetivo principal é desenvolver um sistema funcional que integre controles p
 - **games** -
 - **i2clib** -
 - **mpu6050** -
-- **ssd1306** -  
+- **ssd1306** -
+
+- ### MPU6050 Driver
+`components/mpu6050`  
+Biblioteca para aquisição de dados inerciais via I2C com:
+- Calibração automática de offset
+- Filtro complementar para fusão sensor (aceleração + giroscópio)
+- Saída em unidades padrão (g, °/s)
+- Taxa de amostragem configurável (até 1kHz)
+
+### SSD1306 OLED Driver
+`components/ssd1306`  
+Controlador avançado para display OLED 128x64 com:
+- Sistema de renderização por buffer duplo
+- Fontes bitmap customizáveis (incluindo 5x7, 8x16)
+- Primitivas gráficas (linhas, círculos, sprites)
+- Otimização para atualização parcial da tela
+
+### SD Card Manager
+`components/sd_card`  
+Sistema de armazenamento baseado em FatFS com:
+- Interface SPI otimizada para ESP32
+- Sistema de arquivos com journaling
+- Gerenciamento de recordes em arquivos JSON
+- Recuperação de falhas por checksum CRC32
+
+### Buzzer PWM Controller
+`components/buzzer`  
+Gerador de efeitos sonoros com:
+- Banco de melodias em formato RTTTL
+- Controle de volume por duty cycle
+- Efeitos especiais (vibrato, glissando)
+- Sistema não-bloqueante baseado em callbacks
+
+### Button Handler
+`components/button`  
+Sistema avançado de entrada digital com:
+- Debounce digital (adaptativo)
+- Detecção de eventos (press, release, hold)
+- Configuração por polling ou interrupção
+- Timeout configurável para long-press
+
+### I2C Utilities
+`components/i2c_commons`  
+Camada de abstração para comunicação I2C com:
+- Multiplexação de dispositivos no mesmo barramento
+- Timeout dinâmico por dispositivo
+- Logging de erros detalhado
+- Wrappers para transações atômicas
