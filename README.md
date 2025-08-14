@@ -12,6 +12,10 @@ O objetivo principal é desenvolver um sistema funcional que integre controles p
 - Adicionar feedback sonoro por meio de um buzzer PWM.
 - Assegurar o registro das pontuações no cartão SD.
 
+# 📸 Video Demonstração
+
+- [Video no Youtube](https://youtube.com/shorts/o0RamJytcEc)
+
 # 🚀 Diagramas
 
 - [Diagrama de Blocos](https://github.com/GislanyDias/ProjetoEmbarcados/blob/main/diagramas/diagrama-blocos.pdf)
